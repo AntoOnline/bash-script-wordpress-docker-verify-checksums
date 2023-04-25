@@ -7,7 +7,7 @@ SLACK_ENABLED=false
 INSTALL_WP_CLI=true
 
 # Slack webhook URL
-SLACK_WEBHOOK_URL="https://hooks.slack.com/services/your/slack/webhook/url"
+SLACK_WEBHOOK_URL=$1
 
 # List all container names associated with the wordpress image
 container_names=$(docker ps -aqf "ancestor=wordpress" --format "{{.Names}}")
