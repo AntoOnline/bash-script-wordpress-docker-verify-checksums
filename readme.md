@@ -1,29 +1,26 @@
-Sure, here's an updated version of the `README.md` file:
+# Verify WordPress Container Checksums using WP-CLI and Send Slack Notifications
 
-# WP-CLI Verify Checksums Script
-
-This script lists all running containers associated with the `wordpress` Docker image and runs the `wp core verify-checksums` command on each container.
+This Bash script can be used to verify the checksums of all WordPress containers running on a Docker host using WP-CLI. It also sends Slack notifications if checksum verification fails or if WP-CLI is not found in a container.
 
 ## Requirements
 
-- Docker must be installed on the host machine.
-- The `wordpress` Docker image must be running in one or more containers.
+- Docker
+- Linux
 
 ## Usage
 
-1. Download the script to your local machine.
-2. Make the script executable: `chmod +x wp-cli-verify-checksums.sh`.
-3. Run the script: `./wp-cli-verify-checksums.sh`.
+1. Set the `SLACK_ENABLED` variable to `true` to enable Slack notifications.
+2. Set the `INSTALL_WP_CLI` variable to `true` to install WP-CLI in a container if it is not already installed.
+3. Set the `SLACK_WEBHOOK_URL` variable to your Slack webhook URL.
+4. Run the script using `bash verify-checksums.sh`.
 
-## Installation of WP-CLI in Docker container
+## Script Logic
 
-If the `wp` command is not found in a container, you can install it by running the following command on the container:
+1. Get a list of all container names associated with the WordPress image.
+2. Loop through each container name and check if WP-CLI is installed in the container.
+3. If WP-CLI is not found and `INSTALL_WP_CLI` is set to `true`, install WP-CLI in the container.
+4. If WP-CLI is not found, and `SLACK_ENABLED` is set to `true`, send a Slack notification.
+5. If WP-CLI is found, verify the checksums of the container using WP-CLI.
+6. If checksum verification fails and `SLACK_ENABLED` is set to `true`, send a Slack notification.
 
-```
-curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar && chmod +x wp-cli.phar && sudo mv wp-cli.phar /usr/local/bin/wp
-```
-
-## Configuration
-
-- The script is currently set to use the `wordpress` Docker image. You can modify this by changing the `docker ps` command in the script to use a different image.
-- If the `wp` command is not found in a container, the script will send a notification to a Slack webhook URL. To disable this feature, set the `SLACK_WEBHOOK_URL` environment variable to an empty string: `export SLACK_WEBHOOK_URL=""`.
+Note: The script assumes that the WordPress containers are running on the same Docker host where the script is being executed.
