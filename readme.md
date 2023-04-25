@@ -24,3 +24,7 @@ This Bash script can be used to verify the checksums of all WordPress containers
 6. If checksum verification fails and `SLACK_ENABLED` is set to `true`, send a Slack notification.
 
 Note: The script assumes that the WordPress containers are running on the same Docker host where the script is being executed.
+
+## Disclaimer
+
+This script is provided as-is and is intended for use at your own risk. The author is not responsible for any damage or loss caused by the use of this script.
