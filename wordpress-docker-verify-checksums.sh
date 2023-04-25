@@ -1,13 +1,19 @@
 #!/bin/bash
 
 # Set to true to enable Slack notification
-SLACK_ENABLED=false
+SLACK_ENABLED=true
 
 # Set to true to install wp-cli if not installed
 INSTALL_WP_CLI=true
 
 # Slack webhook URL
 SLACK_WEBHOOK_URL=$1
+
+# Check if SLACK_WEBHOOK_URL is set
+if [[ -z $SLACK_WEBHOOK_URL ]]; then
+    echo "SLACK_WEBHOOK_URL is not set"
+    SLACK_ENABLED=false
+fi
 
 # List all container names associated with the wordpress image
 container_names=$(docker ps -aqf "ancestor=wordpress" --format "{{.Names}}")
