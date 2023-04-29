@@ -40,3 +40,9 @@ The script does the following:
 4. Sends a Slack notification if `wp-cli` is not installed (and `SLACK_ENABLED` is `true`).
 5. Runs the `wp core verify-checksums` command using `wp-cli` to verify the integrity of the WordPress core files.
 6. Sends a Slack notification if the checksum verification fails (and `SLACK_ENABLED` is `true`).
+
+## Want to connect?
+
+Feel free to contact me on [Twitter](https://twitter.com/OnlineAnto) or [LinkedIn](https://www.linkedin.com/in/anto-online) if you have any questions or suggestions.
+
+Or just visit my [website](https://anto.online) to see what I do.
