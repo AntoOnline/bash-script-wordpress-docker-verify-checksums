@@ -1,22 +1,45 @@
 #!/bin/bash
 
-# Set to true to enable Slack notification
+# Default values
 SLACK_ENABLED=true
+INSTALL_WP_CLI="yes"
+SLACK_WEBHOOK_URL=""
+WORDPRESS_IMAGE="wordpress"
 
-# Set to true to install wp-cli if not installed
-INSTALL_WP_CLI=true
+# Function to display script usage
+usage() {
+    echo "Usage: $0 --slack-webhook-url <webhook-url> [--wordpress-image-name <image-name>] [--install-wp-cli <yes|no>]"
+    exit 1
+}
 
-# Slack webhook URL
-SLACK_WEBHOOK_URL=$1
+# Parse command line arguments
+while [[ $# -gt 0 ]]; do
+    key="$1"
+    case $key in
+        --slack-webhook-url)
+            SLACK_WEBHOOK_URL="$2"
+            shift
+            ;;
+        --wordpress-image-name)
+            WORDPRESS_IMAGE="$2"
+            shift
+            ;;
+        --install-wp-cli)
+            INSTALL_WP_CLI="$2"
+            shift
+            ;;
+        *)
+            usage
+            ;;
+    esac
+    shift
+done
 
 # Check if SLACK_WEBHOOK_URL is set
 if [[ -z $SLACK_WEBHOOK_URL ]]; then
     echo "SLACK_WEBHOOK_URL is not set"
     SLACK_ENABLED=false
 fi
-
-# Get the WordPress image name (defaults to "wordpress" if not provided)
-WORDPRESS_IMAGE=${2:-"wordpress"}
 
 # Check if wp-cli exists
 if ! command -v wp &> /dev/null; then
@@ -37,16 +60,13 @@ fi
 echo "Updating wp-cli..."
 wp cli update --allow-root
 
-# List all container names associated with the wordpress image
+# List all container names associated with the WordPress image
 container_names=$(docker ps -aqf "ancestor=$WORDPRESS_IMAGE" --format "{{.Names}}")
 
 # Loop through each container name and copy wp-cli.phar
 for container_name in $container_names; do
     echo "Checking container: $container_name"
 
-    echo "- Installing latest wp-cli in container: $container_name"
-    docker cp /tmp/wp-cli.phar $container_name:/usr/local/bin/wp
-    docker exec $container_name chmod +x /usr/local/bin/wp
     # Verify WordPress core using wp-cli
     if ! docker exec --workdir /var/www/html/ --user www-data $container_name wp core verify-checksums; then
         echo "- WordPress Core Checksum verification failed for container: $container_name"

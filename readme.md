@@ -9,39 +9,35 @@ This script, `wordpress-docker-verify-checksums.sh`, checks the integrity of Wor
 
 ## Usage
 
-1. Make sure the script is executable:
+```bash
+./wordpress-docker-verify-checksums.sh --slack-webhook-url <webhook-url> [--wordpress-image-name <image-name>] [--install-wp-cli <yes|no>]
+```
 
-   ```bash
-   chmod +x wordpress-docker-verify-checksums.sh
-   ```
+Options:
 
-2. Run the script with the Slack webhook URL as the first argument and optionally provide the WordPress image name as the second argument:
+- `--slack-webhook-url`: The Slack webhook URL for the channel you want to receive notifications in (required).
+- `--wordpress-image-name`: The name of the WordPress image to check (default: "wordpress").
+- `--install-wp-cli`: Specify whether to install `wp-cli` if not installed in the container. Accepted values are "yes" or "no" (default: "yes").
 
-   ```bash
-   ./wordpress-docker-verify-checksums.sh [SLACK_WEBHOOK_URL] [WORDPRESS_IMAGE]
-   ```
+Example:
 
-   Replace `[SLACK_WEBHOOK_URL]` with the actual Slack webhook URL for the channel you want to receive notifications in. The `[WORDPRESS_IMAGE]` argument is optional and can be used to specify a custom WordPress image name. If not provided, it defaults to "wordpress".
-
-## Configuration
-
-You can customize the script's behavior by modifying the following variables at the beginning of the script:
-
-- `SLACK_ENABLED`: Set to `true` to enable Slack notifications (default: `true`).
-- `INSTALL_WP_CLI`: Set to `yes` to automatically download and install `wp-cli` if it's not installed in the container (default: `true`).
+```bash
+./wordpress-docker-verify-checksums.sh --slack-webhook-url <webhook-url> --wordpress-image-name custom-wordpress --install-wp-cli no
+```
 
 ## How It Works
 
 The script performs the following steps:
 
-1. Checks if the `SLACK_WEBHOOK_URL` is set and enables Slack notifications accordingly.
-2. Checks if `wp-cli` is installed in the system. If not, and `INSTALL_WP_CLI` is set to `yes`, it downloads and installs `wp-cli`.
-3. Updates `wp-cli` to the latest version.
-4. Retrieves the names of all Docker containers running the specified WordPress image (or default "wordpress" if not provided).
-5. Loops through each container and performs the following checks:
+1. Parses the command line arguments to get the Slack webhook URL, WordPress image name, and `INSTALL_WP_CLI` value.
+2. Checks if the Slack webhook URL is set and enables Slack notifications accordingly.
+3. Checks if `wp-cli` is installed in the system. If not, and `INSTALL_WP_CLI` is set to "yes", it downloads and installs `wp-cli`.
+4. Updates `wp-cli` to the latest version.
+5. Retrieves the names of all Docker containers running the specified WordPress image (or default "wordpress" if not provided).
+6. Loops through each container and performs the following checks:
    - Verifies the integrity of the WordPress core files using `wp-cli`.
-   - Sends a Slack notification if the checksum verification fails (and `SLACK_ENABLED` is `true`).
-6. Completes the loop and finishes the script execution.
+   - Sends a Slack notification if the checksum verification fails (and Slack notifications are enabled).
+7. Completes the loop and finishes the script execution.
 
 ## Want to connect?
 
