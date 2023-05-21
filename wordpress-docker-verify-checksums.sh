@@ -15,12 +15,30 @@ if [[ -z $SLACK_WEBHOOK_URL ]]; then
     SLACK_ENABLED=false
 fi
 
-# Download wp-cli.phar to /tmp directory
-echo "Downloading wp-cli.phar..."
-curl -o /tmp/wp-cli.phar https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+# Get the WordPress image name (defaults to "wordpress" if not provided)
+WORDPRESS_IMAGE=${2:-"wordpress"}
+
+# Check if wp-cli exists
+if ! command -v wp &> /dev/null; then
+    if [[ $INSTALL_WP_CLI == "yes" ]]; then
+        # Download wp-cli.phar to /tmp directory if not installed
+        echo "Downloading wp-cli.phar..."
+        curl -o /tmp/wp-cli.phar https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
+        echo "Installing wp-cli..."
+        chmod +x /tmp/wp-cli.phar
+        mv /tmp/wp-cli.phar /usr/local/bin/wp
+    else
+        echo "wp-cli is not installed and INSTALL_WP_CLI is set to 'no'. Skipping..."
+        exit 0
+    fi
+fi
+
+# Update wp-cli if it exists
+echo "Updating wp-cli..."
+wp cli update --allow-root
 
 # List all container names associated with the wordpress image
-container_names=$(docker ps -aqf "ancestor=wordpress" --format "{{.Names}}")
+container_names=$(docker ps -aqf "ancestor=$WORDPRESS_IMAGE" --format "{{.Names}}")
 
 # Loop through each container name and copy wp-cli.phar
 for container_name in $container_names; do
